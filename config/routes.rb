@@ -3,4 +3,8 @@ Rails.application.routes.draw do
 
   # Defines the root path route ("/")
   # root "articles#index"
+
+  resources :login, controller: 'sessions', only: :index do
+    get :callback, on: :collection
+  end
 end
