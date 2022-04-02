@@ -7,4 +7,6 @@ Rails.application.routes.draw do
   resources :login, controller: 'sessions', only: :index do
     get :callback, on: :collection
   end
+
+  resource :search, only: [:show]
 end
