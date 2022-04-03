@@ -9,5 +9,8 @@ Rails.application.routes.draw do
   end
 
   resource :search, only: [:show]
+
   resources :rooms, only: %i[index create show]
+
+  resources :queued_songs, only: :create
 end
