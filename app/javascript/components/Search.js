@@ -1,15 +1,20 @@
 import React, { useEffect, useState, useRef } from "react"
 import PropTypes from "prop-types"
-import { Binding } from "@babel/traverse";
+import { Container, Form, Row, Card } from 'react-bootstrap';
+
 const Search = ({ token } ) => {
   const [value, setValue] = useState('');
   const [tracks, setTracks] = useState([]);
   const [currentlyPlayingPreview, setCurrentlyPlayingPreview] = useState(null);
+  const requestController = useRef(new AbortController());
+  const debounceTimeout = useRef(null);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
     const search = async () => {
+      requestController.current.abort();
+
       const resp = await fetch(
         `https://api.spotify.com/v1/search?q=track:${value}&type=track,artist,album&market=US`, {
           headers: {
@@ -17,6 +22,7 @@ const Search = ({ token } ) => {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
+          signal: requestController.signal,
       });
 
       if (resp.ok) {
@@ -26,7 +32,13 @@ const Search = ({ token } ) => {
       }
     }
 
-    search();
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      search();
+    }, 500)
   };
 
   if (!token) {
@@ -41,7 +53,7 @@ const Search = ({ token } ) => {
     } else {
       setCurrentlyPlayingPreview(preview_url);
     }
-  }
+  };
 
   const previousAudio = useRef();
 
@@ -57,46 +69,82 @@ const Search = ({ token } ) => {
     }
   }, [currentlyPlayingPreview])
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get('q');
+
+    if (query) {
+      setValue(query);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    if (window.history.pushState) {
+      const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + `?q=${value}`;
+
+      window.history.pushState({ path:newurl }, '', newurl);
+    }
+
+    if (value) {
+      handleFormSubmit({ preventDefault: () => null });
+    } else {
+      setTracks([]);
+    }
+  }, [value])
+
+  const albumArt = (images) => {
+    const art = images.find(({ height }) => height === 640);
+
+    if (art) {
+      return art.url;
+    } else {
+      return '';
+    }
+  };
+
+  const artistNames = (artists) => (
+    artists.reduce((acc, { name }) => acc += (name + ' '), '')
+  );
+
   return (
-    <>
-      <form onSubmit={handleFormSubmit}>
-        <label htmlFor='query'>Search</label>
-        <input
-          type='text'
-          name='query'
-          value={value} onChange={e => setValue(e.target.value)}
-        />
-        <button type='submit'>Submit</button>
-      </form>
+    <Container>
+      <Row>
+        <Form onSubmit={handleFormSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Search</Form.Label>
+            <Form.Control
+              type='text'
+              name='query'
+              value={value} onChange={e => setValue(e.target.value)}
+            />
+          </Form.Group>
+        </Form>
+      </Row>
       {tracks.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>Name</th>
-              <th>Artist</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tracks.map(({ name, artists, preview_url, album: { images } }) => (
-              <tr key={preview_url}>
-                <th className='album-art'>
-                  <img src={images.find(({ height }) => height === 64).url} />
-                  <button
-                    className="btn"
-                    onClick={() => { handleCurrentlyPlayingChange(preview_url) }}
-                  >
-                    {currentlyPlayingPreview === preview_url ? '||' : '▶'}
-                  </button>
-                </th>
-                <th>{name}</th>
-                <th>{artists.reduce((acc, { name }) => acc += (name + ' '), '')}</th>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        tracks.map(({ name, artists, preview_url, album: { images } }, index) => (
+          <Card key={name + preview_url + index + artistNames(artists)} className='mb-3'>
+            <Card.Img src={albumArt(images)} />
+            <Card.ImgOverlay>
+              {preview_url && (
+                <button
+                  className="playback-button"
+                  onClick={() => { handleCurrentlyPlayingChange(preview_url) }}
+                >
+                  {currentlyPlayingPreview === preview_url ? '||' : '▶'}
+                </button>
+              )}
+            </Card.ImgOverlay>
+            <Card.Body>
+              <Card.Title>{name}</Card.Title>
+              <Card.Subtitle>
+                {artistNames(artists)}
+              </Card.Subtitle>
+            </Card.Body>
+          </Card>
+        ))
       )}
-    </>
+    </Container>
   )
 }
 
