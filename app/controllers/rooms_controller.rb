@@ -1,4 +1,6 @@
 class RoomsController < ApplicationController
+  skip_before_action :authorize, except: [:create]
+
   def index; end
 
   def create
