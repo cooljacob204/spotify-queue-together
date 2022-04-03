@@ -33,3 +33,5 @@ module SpotifyQueueTogether
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end
+
+REDIS_DB = ENV['RAILS_ENV'] == 'test' ? MockRedis.new : Redis.new(Rails.application.config_for(:database))

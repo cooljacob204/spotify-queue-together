@@ -32,6 +32,10 @@ class Room
     end
   end
 
+  def song_queue
+    @song_queue ||= SongQueue.new("room:#{id}")
+  end
+
   def queue_song(song_uri)
     Host.new(host_token).queue_song(song_uri)
   end
@@ -42,15 +46,11 @@ class Room
     'room'
   end
 
-  def room_queue_prefix
-    'room_queue'
-  end
-
   def room_expire_time
     60 * 60 * 6
   end
 
   def redis
-    @redis ||= Redis.new(Rails.application.config_for(:database))
+    REDIS_DB
   end
 end
