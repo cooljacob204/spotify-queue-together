@@ -81,6 +81,24 @@ module SpotifyAdapters
       save_to_session!
     end
 
+    def to_hash
+      {
+        access_token:,
+        expires_at:,
+        refresh_token:,
+        scope:,
+        token_type:
+      }
+    end
+
+    def to_json(*args)
+      to_hash.to_json(*args)
+    end
+
+    def to_s
+      to_hash
+    end
+
     private
 
     def refresh_request
