@@ -113,6 +113,8 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.15.0)
+    mock_redis (0.30.0)
+      ruby2_keywords
     msgpack (1.4.5)
     net-imap (0.2.3)
       digest
@@ -221,6 +223,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
     ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.5)
     semantic_range (3.0.0)
     spring (4.0.0)
     spring-commands-rspec (1.0.4)
@@ -269,6 +272,7 @@ DEPENDENCIES
   httpclient
   importmap-rails
   jbuilder
+  mock_redis
   pry
   puma (~> 5.0)
   rails (~> 7.0.2, >= 7.0.2.3)
