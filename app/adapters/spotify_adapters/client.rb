@@ -12,6 +12,10 @@ module SpotifyAdapters
       HTTPClient.new.post(path, body, headers.merge(authorization_header))
     end
 
+    def put(path, body = nil, headers = {})
+      HTTPClient.new.put(path, body, headers.merge(authorization_header))
+    end
+
     private
 
     def authorization_header
