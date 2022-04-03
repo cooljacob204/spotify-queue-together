@@ -36,7 +36,7 @@ module SpotifyAdapters
 
         resp = HTTPClient.new.post('https://accounts.spotify.com/api/token', body, headers)
 
-        raise "Spotify returned an error: #{resp.body}" unless resp.status == 200
+        raise RequestError, "Spotify returned an error: #{resp.body}" unless resp.status == 200
 
         JSON.parse(resp.body)
       end
@@ -92,9 +92,11 @@ module SpotifyAdapters
 
       resp = HTTPClient.new.post('https://accounts.spotify.com/api/token', body, headers)
 
-      raise "Spotify returned an error: #{resp.body}" unless resp.status == 200
+      raise RequestError, "Spotify returned an error: #{resp.body}" unless resp.status == 200
 
       JSON.parse(resp.body)
     end
+
+    class RequestError < StandardError; end
   end
 end
