@@ -13,3 +13,28 @@
  *= require_tree .
  *= require_self
  */
+
+th.album-art {
+  position: relative;
+  /* width: 50%; */
+}
+
+th.album-art img {
+  width: 100%;
+  height: auto;
+}
+
+th.album-art button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  outline: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
