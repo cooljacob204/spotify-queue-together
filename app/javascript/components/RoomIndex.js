@@ -5,7 +5,7 @@ const RoomIndex = () => {
 
   function onSubmit(e) {
     e.preventDefault();
-    window.location.href = `/room/${roomId}`;
+    window.location.href = `/rooms/${roomId}`;
   }
 
   return <div>
