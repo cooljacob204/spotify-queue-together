@@ -29,3 +29,7 @@
   font-size: 10rem;
   cursor: pointer;
 }
+
+.playback-overlay {
+  height: 80%;
+}

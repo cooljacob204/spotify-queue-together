@@ -1,6 +1,4 @@
 class SessionsController < ApplicationController
-  skip_before_action :authorize
-
   def index
     @auth_query = {
       client_id: ENV.fetch('CLIENT_ID'),

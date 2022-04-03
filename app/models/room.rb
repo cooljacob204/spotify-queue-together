@@ -32,6 +32,10 @@ class Room
     end
   end
 
+  def queue_song(song_uri)
+    Host.new(host_token).queue_song(song_uri)
+  end
+
   private
 
   def room_prefix

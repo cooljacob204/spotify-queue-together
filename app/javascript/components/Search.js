@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react"
 import PropTypes from "prop-types"
-import { Container, Form, Row, Card } from 'react-bootstrap';
+import { Container, Form, Row, Card, Button, Col } from 'react-bootstrap';
 
 const Search = ({ token } ) => {
   const [value, setValue] = useState('');
@@ -107,6 +107,26 @@ const Search = ({ token } ) => {
     artists.reduce((acc, { name }) => acc += (name + ' '), '')
   );
 
+  const handleQueueOnClick = (song_uri) => {
+    const queue = async () => {
+      const csrf = document.querySelector('[name=csrf-token]').content;
+
+      const resp = await fetch('/queued_songs', {
+        method: 'POST',
+        body: JSON.stringify({
+          song_uri
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrf,
+        }
+      })
+    }
+
+    queue();
+  };
+
   return (
     <Container>
       <Row>
@@ -122,10 +142,10 @@ const Search = ({ token } ) => {
         </Form>
       </Row>
       {tracks.length > 0 && (
-        tracks.map(({ name, artists, preview_url, album: { images } }, index) => (
+        tracks.map(({ name, artists, preview_url, uri, album: { images } }, index) => (
           <Card key={name + preview_url + index + artistNames(artists)} className='mb-3'>
             <Card.Img src={albumArt(images)} />
-            <Card.ImgOverlay>
+            <Card.ImgOverlay className='playback-overlay'>
               {preview_url && (
                 <button
                   className="playback-button"
@@ -136,10 +156,19 @@ const Search = ({ token } ) => {
               )}
             </Card.ImgOverlay>
             <Card.Body>
-              <Card.Title>{name}</Card.Title>
-              <Card.Subtitle>
-                {artistNames(artists)}
-              </Card.Subtitle>
+              <Row>
+                <Col>
+                  <Card.Title>{name}</Card.Title>
+                  <Card.Subtitle>
+                    {artistNames(artists)}
+                  </Card.Subtitle>
+                </Col>
+                <Col>
+                </Col>
+              </Row>
+              <Button onClick={() => handleQueueOnClick(uri)}>
+                Queue
+              </Button>
             </Card.Body>
           </Card>
         ))
