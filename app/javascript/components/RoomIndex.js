@@ -8,10 +8,16 @@ const RoomIndex = () => {
     window.location.href = `/room/${roomId}`;
   }
 
-  return <form onSubmit={onSubmit}>
-    <label htmlFor='room_id'>Room Id:</label>
-    <input type='text' name='room_id' value={roomId} onChange={e => setRoomId(e.target.value)}/>
-    <button type='submit'>Join</button>
-  </form>
+  return <div>
+    <form onSubmit={onSubmit}>
+      <label htmlFor='room_id'>Room Id:</label>
+      <input type='text' name='room_id' value={roomId} onChange={e => setRoomId(e.target.value)}/>
+      <button type='submit'>Join</button>
+    </form>
+
+    <form method="post">
+      <button type='submit'>Create Room</button>
+    </form>
+  </div>
 }
 export default RoomIndex

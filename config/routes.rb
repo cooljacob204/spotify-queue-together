@@ -9,5 +9,5 @@ Rails.application.routes.draw do
   end
 
   resource :search, only: [:show]
-  resources :rooms, only: [:index]
+  resources :rooms, only: %i[index create show]
 end

@@ -15,6 +15,6 @@ class SessionsController < ApplicationController
     token.session = session
     token.save_to_session!
 
-    render json: { token: }
+    redirect_to '/rooms'
   end
 end
