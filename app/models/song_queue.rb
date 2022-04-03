@@ -6,12 +6,32 @@ class SongQueue
   end
 
   def add_to_queue(song)
-    redis.lpush("#{song_queue_prefix}:#{id}", song.to_json)
-    redis.expire("#{song_queue_prefix}:#{id}", queue_expire_time)
+    redis.lpush(queue_key, song.to_json)
+    redis.expire(queue_key, queue_expire_time)
   end
 
   def pop_song
-    JSON.parse(redis.rpop("#{song_queue_prefix}:#{id}"))
+    JSON.parse(redis.rpop(queue_key))
+  end
+
+  def length
+    redis.llen(queue_key)
+  end
+
+  def empty?
+    length.zero?
+  end
+
+  def queue_key
+    "#{song_queue_prefix}:#{id}"
+  end
+
+  def clear
+    redis.del(queue_key)
+  end
+
+  def list
+    redis.lrange(queue_key, 0, -1).map { |song| JSON.parse(song) }
   end
 
   private

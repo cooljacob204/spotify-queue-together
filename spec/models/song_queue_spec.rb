@@ -42,5 +42,46 @@ RSpec.describe SongQueue do
         expect(REDIS_DB.lpop("song_queue:#{id}")).to be_nil
       end
     end
+
+    describe '#length' do
+      it 'returns the length of the queue' do
+        described_class.new(id).add_to_queue({})
+        described_class.new(id).add_to_queue({})
+
+        expect(described_class.new(id).length).to eq 2
+      end
+    end
+
+    describe '#empty?' do
+      it 'returns true if the queue is empty' do
+        expect(described_class.new(id).empty?).to be true
+      end
+
+      it 'returns false if the queue is not empty' do
+        described_class.new(id).add_to_queue({})
+
+        expect(described_class.new(id).empty?).to be false
+      end
+    end
+
+    describe '#clear' do
+      it 'clears the queue' do
+        described_class.new(id).add_to_queue({})
+        described_class.new(id).add_to_queue({})
+
+        described_class.new(id).clear
+
+        expect(described_class.new(id).length).to eq 0
+      end
+    end
+
+    describe '#list' do
+      it 'returns the list of songs in the queue' do
+        described_class.new(id).add_to_queue({ 'test' => 'song' })
+        described_class.new(id).add_to_queue({ 'test' => 'song2' })
+
+        expect(described_class.new(id).list).to match_array [{ 'test' => 'song' }, { 'test' => 'song2' }]
+      end
+    end
   end
 end
