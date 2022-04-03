@@ -107,14 +107,14 @@ const Search = ({ token } ) => {
     artists.reduce((acc, { name }) => acc += (name + ' '), '')
   );
 
-  const handleQueueOnClick = (song_uri) => {
+  const handleQueueOnClick = (song) => {
     const queue = async () => {
       const csrf = document.querySelector('[name=csrf-token]').content;
 
       const resp = await fetch('/queued_songs', {
         method: 'POST',
         body: JSON.stringify({
-          song_uri
+          song
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -166,7 +166,13 @@ const Search = ({ token } ) => {
                 <Col>
                 </Col>
               </Row>
-              <Button onClick={() => handleQueueOnClick(uri)}>
+              <Button onClick={() => handleQueueOnClick({
+                name: name,
+                artists: artists,
+                preview_url: preview_url,
+                uri: uri,
+                album: { images: images } 
+              })}>
                 Queue
               </Button>
             </Card.Body>

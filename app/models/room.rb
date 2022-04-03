@@ -36,8 +36,8 @@ class Room
     @song_queue ||= SongQueue.new("room:#{id}")
   end
 
-  def queue_song(song_uri)
-    Host.new(host_token).queue_song(song_uri)
+  def queue_song(song)
+    song_queue.add_to_queue(song)
   end
 
   private
