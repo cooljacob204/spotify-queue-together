@@ -32,12 +32,12 @@ class Room
     end
   end
 
-  def song_queue
-    @song_queue ||= SongQueue.new("room:#{id}")
+  def queue
+    @queue ||= SongQueue.new("room:#{id}")
   end
 
   def queue_song(song)
-    song_queue.add_to_queue(song)
+    queue.add_to_queue(song)
   end
 
   private
