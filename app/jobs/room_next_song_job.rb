@@ -32,7 +32,7 @@ class RoomNextSongJob
   end
 
   def play_song(song)
-    if room.host.play_song(song['uri']) == 204
+    if room.host.play_song(song['uri']).status == 204
       RoomNextSongJob.perform_in((song['duration_ms'] / 1000.0) - 5, room.id)
     else
       room.queue.add_to_front_of_queue(song)
