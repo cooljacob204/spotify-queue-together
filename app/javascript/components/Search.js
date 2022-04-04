@@ -2,12 +2,13 @@ import React, { useEffect, useState, useRef } from "react"
 import PropTypes from "prop-types"
 import { Container, Form, Row, Card, Button, Col } from 'react-bootstrap';
 
-const Search = ({ token } ) => {
+const Search = () => {
   const [value, setValue] = useState('');
   const [tracks, setTracks] = useState([]);
   const [currentlyPlayingPreview, setCurrentlyPlayingPreview] = useState(null);
   const requestController = useRef(new AbortController());
   const debounceTimeout = useRef(null);
+  const csrf = useRef(document.querySelector('[name=csrf-token]').content);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -15,14 +16,15 @@ const Search = ({ token } ) => {
     const search = async () => {
       requestController.current.abort();
 
-      const resp = await fetch(
-        `https://api.spotify.com/v1/search?q=track:${value}&type=track,artist,album&market=US`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          signal: requestController.signal,
+      const resp = await fetch(`/search`, {
+        method: 'POST',
+        body: JSON.stringify({ value }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': csrf.current,
+        },
+        signal: requestController.signal,
       });
 
       if (resp.ok) {
@@ -40,10 +42,6 @@ const Search = ({ token } ) => {
       search();
     }, 500)
   };
-
-  if (!token) {
-    return <>You must have a token</>
-  }
 
   const handleCurrentlyPlayingChange = (preview_url) => {
     if (currentlyPlayingPreview === preview_url) {
@@ -109,8 +107,6 @@ const Search = ({ token } ) => {
 
   const handleQueueOnClick = (song) => {
     const queue = async () => {
-      const csrf = document.querySelector('[name=csrf-token]').content;
-
       const resp = await fetch('/queued_songs', {
         method: 'POST',
         body: JSON.stringify({
@@ -119,7 +115,7 @@ const Search = ({ token } ) => {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          'X-CSRF-TOKEN': csrf,
+          'X-CSRF-TOKEN': csrf.current,
         }
       })
     }
