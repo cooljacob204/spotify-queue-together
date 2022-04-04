@@ -1,9 +1,38 @@
 class Room
   attr_reader :id
 
+  delegate :redis, :room_prefix, to: :class
+
   class << self
-    def create
+    def create(spotify_host_token:)
       new(Array.new(5) { [*'A'..'Z', *'0'..'9'].sample }.join)
+        .tap do |room|
+          room.update(
+            {
+              host_token: spotify_host_token.to_hash,
+              started: false
+            },
+            {
+              ex: room_expire_time
+            }
+          )
+        end
+    end
+
+    def find_by_id(id)
+      new(id)
+    end
+
+    def redis
+      REDIS_DB
+    end
+
+    def room_prefix
+      'room'
+    end
+
+    def room_expire_time
+      60 * 60 * 6
     end
   end
 
@@ -11,38 +40,20 @@ class Room
     @id = id
   end
 
+  def update(params, redis_params = {})
+    set_redis(from_redis.merge(params).to_json, redis_params)
+  end
+
   def exists?
     redis.exists("#{room_prefix}:#{id}").positive?
   end
 
-  def save_to_redis
-    redis.set("#{room_prefix}:#{id}", { host_token: host_token.to_hash, started: }.to_json, ex: room_expire_time)
-  end
-
-  def host_token=(token)
-    @host_token = token
-    save_to_redis
-  end
-
   def host_token
-    redis_room_raw = redis.get("#{room_prefix}:#{id}")
-    return unless redis_room_raw || @host_token
-
-    @host_token ||= JSON.parse(redis.get("#{room_prefix}:#{id}")).fetch('host_token').then do |token_hash|
-      token_from_hash(token_hash).tap { |token| token.room = self }
-    end
-  end
-
-  def started=(started)
-    @started = started
-    save_to_redis
+    host.token
   end
 
   def started
-    redis_room_raw = redis.get("#{room_prefix}:#{id}")
-    return false unless redis_room_raw || @started
-
-    @started ||= JSON.parse(redis.get("#{room_prefix}:#{id}")).fetch('started', false)
+    from_redis[:started]
   end
 
   def queue
@@ -50,7 +61,11 @@ class Room
   end
 
   def host
-    @host ||= Host.new(host_token)
+    @host ||= Host.new(
+      from_redis.fetch('host_token').then do |token_hash|
+        token_from_hash(token_hash).tap { |token| token.room = self }
+      end
+    )
   end
 
   def queue_song(song)
@@ -64,10 +79,17 @@ class Room
   def play_song(song)
     host.play_song(song['uri'])
     RoomNextSongJob.perform_in((song['duration_ms'] + 100) / 1000.0, id)
-    self.started = true
+
+    set_redis(started: true)
   end
 
-  private
+  def add_user
+    update(num_users: num_users + 1)
+  end
+
+  def num_users
+    from_redis.fetch('num_users') || 0
+  end
 
   def token_from_hash(hash)
     SpotifyAdapters::ClientToken.new(
@@ -79,15 +101,29 @@ class Room
     )
   end
 
-  def room_prefix
-    'room'
+  def host_id
+    1
+  end
+
+  private
+
+  def room_queue_prefix
+    'room_queue'
   end
 
   def room_expire_time
     60 * 60 * 6
   end
 
-  def redis
-    REDIS_DB
+  def from_redis
+    JSON.parse(redis.get(redis_key) || "\{\}")
+  end
+
+  def set_redis(value, redis_params = {})
+    redis.set(redis_key, value, **redis_params)
+  end
+
+  def redis_key
+    "#{self.class.room_prefix}:#{id}"
   end
 end

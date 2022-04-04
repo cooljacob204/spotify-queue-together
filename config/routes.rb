@@ -10,7 +10,7 @@ Rails.application.routes.draw do
     get :callback, on: :collection
   end
 
-  resource :search, only: [:show]
+  resource :search, only: [:show, :create]
 
   resources :rooms, only: %i[index create show]
 

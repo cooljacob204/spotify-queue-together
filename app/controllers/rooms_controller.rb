@@ -4,16 +4,12 @@ class RoomsController < ApplicationController
   def index; end
 
   def create
-    room = Room.create
-    room.host_token = SpotifyAdapters::ClientToken.token_from_session(session)
+    room = Room.create(spotify_host_token: SpotifyAdapters::ClientToken.token_from_session(session))
 
-    redirect_to room_path(room.id)
-  end
+    session[:room_id] = room.id
+    session[:user_id] = room.host_id
 
-  def show
-    session[:room_id] = params[:id]
-
-    render html: Room.new(params[:id]).host_token.to_s
+    redirect_to search_path
   end
 
   private
