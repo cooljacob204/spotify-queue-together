@@ -142,7 +142,7 @@ const Search = ({ token } ) => {
         </Form>
       </Row>
       {tracks.length > 0 && (
-        tracks.map(({ name, artists, preview_url, uri, album: { images } }, index) => (
+        tracks.map(({ name, artists, preview_url, uri, duration_ms, album: { images } }, index) => (
           <Card key={name + preview_url + index + artistNames(artists)} className='mb-3'>
             <Card.Img src={albumArt(images)} />
             <Card.ImgOverlay className='playback-overlay'>
@@ -171,7 +171,8 @@ const Search = ({ token } ) => {
                 artists: artists,
                 preview_url: preview_url,
                 uri: uri,
-                album: { images: images } 
+                duration_ms: duration_ms,
+                album: { images: images }
               })}>
                 Queue
               </Button>
