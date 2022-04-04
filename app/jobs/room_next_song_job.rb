@@ -9,7 +9,7 @@ class RoomNextSongJob
 
     currently_playing = room.host.currently_playing
 
-    if !currently_playing || currently_playing['progress_ms'] < 6000
+    if currently_playing.nil? || currently_playing['progress_ms'] < 6000
       wait_for_song_end if currently_playing
 
       play_next_song
@@ -35,7 +35,7 @@ class RoomNextSongJob
   def wait_for_song_end
     currently_playing = room.host.currently_playing
 
-    while currently_playing['progress_ms'].positive?
+    while currently_playing && currently_playing['progress_ms'].positive?
       if time_left > 1000
         sleep 1
       else
