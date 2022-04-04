@@ -10,6 +10,11 @@ class SongQueue
     redis.expire(queue_key, queue_expire_time)
   end
 
+  def add_to_front_of_queue(song)
+    redis.rpush(queue_key, song.to_json)
+    redis.expire(queue_key, queue_expire_time)
+  end
+
   def pop
     redis.rpop(queue_key).then { |raw_song| JSON.parse(raw_song) if raw_song }
   end

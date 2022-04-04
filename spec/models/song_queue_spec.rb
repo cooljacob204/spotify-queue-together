@@ -25,6 +25,21 @@ RSpec.describe SongQueue do
       end
     end
 
+    describe '#add_to_front_of_queue' do
+      it 'adds to the room queue' do
+        song = { 'test' => 'song' }
+        described_class.new(id).add_to_front_of_queue(song)
+
+        expect(REDIS_DB.lpop("song_queue:#{id}")).to eq song.to_json
+      end
+
+      it 'expires the queue after 6 hours' do
+        described_class.new(id).add_to_front_of_queue({})
+
+        expect(REDIS_DB.ttl("song_queue:#{id}")).to eq 6 * 60 * 60
+      end
+    end
+
     describe '#pop' do
       it 'returns the next song in the queue' do
         song = { 'test' => 'song' }
