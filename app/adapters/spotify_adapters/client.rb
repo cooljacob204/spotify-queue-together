@@ -26,7 +26,7 @@ module SpotifyAdapters
 
     def token
       @token.tap do |token|
-        token.refresh_and_save_to_session! if token.expired?
+        token.refresh! if token.expired?
       end
     end
   end

@@ -1,7 +1,7 @@
 module SpotifyAdapters
   class ClientToken
     attr_reader :access_token, :expires_at, :refresh_token, :scope, :token_type
-    attr_accessor :session
+    attr_accessor :session, :room
 
     class << self
       def generate(code)
@@ -60,6 +60,10 @@ module SpotifyAdapters
       }
     end
 
+    def save_to_room!
+      room.save_to_redis
+    end
+
     def expired?
       Time.now.to_i > expires_at
     end
@@ -73,12 +77,10 @@ module SpotifyAdapters
       @scope = token_hash['scope']
       @token_type = token_hash['token_type']
 
-      self
-    end
+      save_to_session! if session
+      save_to_room! if room
 
-    def refresh_and_save_to_session!
-      refresh!
-      save_to_session!
+      self
     end
 
     def to_hash

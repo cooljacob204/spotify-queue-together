@@ -25,19 +25,19 @@ RSpec.describe SongQueue do
       end
     end
 
-    describe '#pop_song' do
+    describe '#pop' do
       it 'returns the next song in the queue' do
         song = { 'test' => 'song' }
         described_class.new(id).add_to_queue(song)
 
-        expect(described_class.new(id).pop_song).to eq song
+        expect(described_class.new(id).pop).to eq song
       end
 
       it 'removes the song from the queue' do
         song = { 'test' => 'song' }
         described_class.new(id).add_to_queue(song)
 
-        described_class.new(id).pop_song
+        described_class.new(id).pop
 
         expect(REDIS_DB.lpop("song_queue:#{id}")).to be_nil
       end

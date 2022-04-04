@@ -10,8 +10,8 @@ class SongQueue
     redis.expire(queue_key, queue_expire_time)
   end
 
-  def pop_song
-    JSON.parse(redis.rpop(queue_key))
+  def pop
+    redis.rpop(queue_key).then { |raw_song| JSON.parse(raw_song) if raw_song }
   end
 
   def length

@@ -19,6 +19,17 @@ class Host
     client.post("#{url}?#{{ uri: song_uri }.to_query}", nil, headers)
   end
 
+  def currently_playing
+    url = 'https://api.spotify.com/v1/me/player/currently-playing'
+    headers = { 'Content-Type' => 'application/json' }
+
+    request = client.get(url, nil, headers)
+
+    return nil if request.status == 204
+
+    JSON.parse(request.body)
+  end
+
   private
 
   def client

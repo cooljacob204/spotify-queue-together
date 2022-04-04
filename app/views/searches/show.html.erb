@@ -1,1 +1,1 @@
-<%= react_component("Search", { token: session[:auth]['access_token'] }) %>
+<%= react_component("Search", { token: Room.new(session['room_id']).host_token.access_token }) %>
