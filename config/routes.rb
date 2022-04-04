@@ -1,3 +1,5 @@
+require 'sidekiq/web' unless ENV['RAILS_ENV'] == 'production'
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -13,4 +15,6 @@ Rails.application.routes.draw do
   resources :rooms, only: %i[index create show]
 
   resources :queued_songs, only: :create
+
+  mount Sidekiq::Web => "/sidekiq" unless ENV['RAILS_ENV'] == 'production'
 end

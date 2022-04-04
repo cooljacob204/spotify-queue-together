@@ -12,6 +12,10 @@ module SpotifyAdapters
       HTTPClient.new.post(path, body, headers.merge(authorization_header))
     end
 
+    def put(path, body = nil, headers = {})
+      HTTPClient.new.put(path, body, headers.merge(authorization_header))
+    end
+
     private
 
     def authorization_header
@@ -22,7 +26,7 @@ module SpotifyAdapters
 
     def token
       @token.tap do |token|
-        token.refresh_and_save_to_session! if token.expired?
+        token.refresh! if token.expired?
       end
     end
   end

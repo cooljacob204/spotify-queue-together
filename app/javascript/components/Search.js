@@ -107,14 +107,14 @@ const Search = ({ token } ) => {
     artists.reduce((acc, { name }) => acc += (name + ' '), '')
   );
 
-  const handleQueueOnClick = (song_uri) => {
+  const handleQueueOnClick = (song) => {
     const queue = async () => {
       const csrf = document.querySelector('[name=csrf-token]').content;
 
       const resp = await fetch('/queued_songs', {
         method: 'POST',
         body: JSON.stringify({
-          song_uri
+          song
         }),
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ const Search = ({ token } ) => {
         </Form>
       </Row>
       {tracks.length > 0 && (
-        tracks.map(({ name, artists, preview_url, uri, album: { images } }, index) => (
+        tracks.map(({ name, artists, preview_url, uri, duration_ms, album: { images } }, index) => (
           <Card key={name + preview_url + index + artistNames(artists)} className='mb-3'>
             <Card.Img src={albumArt(images)} />
             <Card.ImgOverlay className='playback-overlay'>
@@ -166,7 +166,14 @@ const Search = ({ token } ) => {
                 <Col>
                 </Col>
               </Row>
-              <Button onClick={() => handleQueueOnClick(uri)}>
+              <Button onClick={() => handleQueueOnClick({
+                name: name,
+                artists: artists,
+                preview_url: preview_url,
+                uri: uri,
+                duration_ms: duration_ms,
+                album: { images: images }
+              })}>
                 Queue
               </Button>
             </Card.Body>

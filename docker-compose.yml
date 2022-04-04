@@ -10,3 +10,9 @@ services:
       - "6379"
     ports:
       - "6379:6379"
+  sidekiq_redis:
+    image: redis
+    expose:
+      - "6380"
+    ports:
+      - "6380:6380"
